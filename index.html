@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Потихоньку — из залипания к первому шагу</title>
-  <meta name="description" content="Мягкий помощник против прокрастинации: без стыда, крошечный шаг, план «если — то» и короткий таймер." />
+  <meta name="description" content="Геймифицированный помощник против прокрастинации: разные пути под причину, почти без ввода текста." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,600&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -13,130 +13,65 @@
 <body>
   <div class="bg" aria-hidden="true"></div>
 
+  <header class="hud" id="hud">
+    <span class="mark">Потихоньку</span>
+    <div class="hud-stats">
+      <span title="Серия дней">🔥 <b id="hudStreak">0</b></span>
+      <span title="Очки старта">✦ <b id="hudXp">0</b></span>
+      <span id="hudLevel">ур. 1</span>
+    </div>
+  </header>
+
   <main class="shell" id="app">
-    <!-- 0. Старт -->
-    <section class="panel active" data-step="start">
-      <p class="mark">Потихоньку</p>
-      <h1>Из залипания — к&nbsp;одному маленькому шагу</h1>
-      <p class="lead">
-        Без стыда и списков на неделю. Опираемся на то, что реально помогает:
-        самосострадание, крошечный старт и план «если — то».
-      </p>
-      <button type="button" class="btn" data-go="feel">Я сейчас откладываю</button>
-      <p class="footnote">Ничего не сохранится на сервер. Всё только в этом браузере.</p>
+    <section class="panel" data-step="start">
+      <h1>Выбери, что мешает — и пройди свой маршрут</h1>
+      <p class="lead">Почти без печати. За старт — очки. За серию дней — уровень.</p>
+      <div class="hero-grid" id="feelGrid"></div>
+      <p class="footnote">Данные только в браузере. Стыд не начисляем.</p>
     </section>
 
-    <!-- 1. Самосострадание + аффект -->
-    <section class="panel" data-step="feel" hidden>
-      <p class="step">1 · без давления</p>
-      <h2>Сначала снимем напряжение</h2>
-      <p class="lead">Прокрастинация часто — способ уйти от неприятного чувства, а не «лень».</p>
-      <fieldset class="choices">
-        <legend class="sr">Как сейчас</legend>
-        <label class="chip"><input type="radio" name="feel" value="тревога" /> тревожно</label>
-        <label class="chip"><input type="radio" name="feel" value="усталость" /> устал(а)</label>
-        <label class="chip"><input type="radio" name="feel" value="скука" /> скучно</label>
-        <label class="chip"><input type="radio" name="feel" value="страх" /> страшно начать</label>
-        <label class="chip"><input type="radio" name="feel" value="перегруз" /> слишком много</label>
-        <label class="chip"><input type="radio" name="feel" value="нейтрально" checked /> просто откладываю</label>
-      </fieldset>
-      <p class="soft" id="feelNote">Это нормально. Мы не будем себя ругать — так проще сдвинуться.</p>
+    <section class="panel" data-step="path" hidden>
+      <div class="path-bar"><i id="pathFill"></i></div>
+      <p class="step" id="pathStep">шаг</p>
+      <h2 id="pathTitle"></h2>
+      <p class="lead" id="pathLead"></p>
+      <div class="choices" id="pathChoices"></div>
+      <p class="soft" id="pathSoft" hidden></p>
       <div class="actions">
-        <button type="button" class="btn ghost" data-go="start">Назад</button>
-        <button type="button" class="btn" data-go="wish">Дальше</button>
+        <button type="button" class="btn ghost" id="pathBack">Назад</button>
+        <button type="button" class="btn" id="pathNext" disabled>Дальше</button>
       </div>
     </section>
 
-    <!-- 2. Wish + Outcome (mental contrasting start) -->
-    <section class="panel" data-step="wish" hidden>
-      <p class="step">2 · что важно</p>
-      <h2>Какую задачу откладываешь?</h2>
-      <p class="lead">Напиши конкретно. Не «разобраться с проектом», а ближайшее действие.</p>
-      <label class="field">
-        <span>Задача</span>
-        <textarea id="wishInput" rows="2" placeholder="Например: открыть документ и написать первый абзац письма"></textarea>
-      </label>
-      <label class="field">
-        <span>Зачем тебе это (одним предложением)</span>
-        <input id="outcomeInput" type="text" placeholder="Чтобы вечером не крутилось в голове" maxlength="120" />
-      </label>
-      <div class="actions">
-        <button type="button" class="btn ghost" data-go="feel">Назад</button>
-        <button type="button" class="btn" id="wishNext">Дальше</button>
-      </div>
-    </section>
-
-    <!-- 3. Obstacle + If-then (MCII) -->
-    <section class="panel" data-step="plan" hidden>
-      <p class="step">3 · препятствие и план</p>
-      <h2>Что обычно мешает?</h2>
-      <p class="lead">Сначала увидим препятствие, потом — короткий план «если — то».</p>
-      <label class="field">
-        <span>Главное препятствие прямо сейчас</span>
-        <input id="obstacleInput" type="text" placeholder="Например: открою ленту / захочу идеальный вариант" maxlength="120" />
-      </label>
-      <label class="field">
-        <span>Если это случится — то я…</span>
-        <input id="ifThenInput" type="text" placeholder="закрою вкладку и сделаю только первый шаг" maxlength="140" />
-      </label>
-      <div class="actions">
-        <button type="button" class="btn ghost" data-go="wish">Назад</button>
-        <button type="button" class="btn" id="planNext">Дальше</button>
-      </div>
-    </section>
-
-    <!-- 4. Shrink to 2 minutes -->
-    <section class="panel" data-step="tiny" hidden>
-      <p class="step">4 · крошечный старт</p>
-      <h2>Сожми до 2 минут</h2>
-      <p class="lead">Цель не «закончить», а <strong>начать</strong>. Мозг легче соглашается на маленький кусок.</p>
-      <p class="echo" id="wishEcho"></p>
-      <label class="field">
-        <span>Что успеешь за 2 минуты?</span>
-        <textarea id="tinyInput" rows="2" placeholder="Открыть файл и написать одно предложение"></textarea>
-      </label>
-      <div class="durations" role="group" aria-label="Длительность">
-        <button type="button" class="dur active" data-min="2">2 мин</button>
-        <button type="button" class="dur" data-min="5">5 мин</button>
-        <button type="button" class="dur" data-min="10">10 мин</button>
-        <button type="button" class="dur" data-min="25">25 мин</button>
-      </div>
-      <div class="actions">
-        <button type="button" class="btn ghost" data-go="plan">Назад</button>
-        <button type="button" class="btn" id="startFocus">Начать</button>
-      </div>
-    </section>
-
-    <!-- 5. Focus -->
     <section class="panel focus" data-step="focus" hidden>
-      <p class="step">сейчас</p>
-      <p class="timer" id="timer" aria-live="polite">2:00</p>
+      <p class="mode-tag" id="modeTag">режим</p>
+      <p class="timer" id="timer">2:00</p>
+      <div class="xp-live">+<span id="xpPreview">10</span> ✦ за доживание таймера</div>
       <h2 class="focus-task" id="focusTask"></h2>
       <p class="plan-line" id="planLine"></p>
+      <div class="combo" id="combo" hidden>Комбо ×<span id="comboN">1</span></div>
       <div class="actions center">
         <button type="button" class="btn ghost" id="skipTimer">Уже сделал(а)</button>
         <button type="button" class="btn" id="pauseBtn">Пауза</button>
       </div>
     </section>
 
-    <!-- 6. Done -->
     <section class="panel" data-step="done" hidden>
-      <p class="step">готово</p>
-      <h2 id="doneTitle">Ты начал(а). Это главное.</h2>
-      <p class="lead" id="doneText">Даже короткий старт снижает сопротивление. Можно остановиться — или сделать ещё один крошечный кусок.</p>
+      <p class="loot" id="loot">+12 ✦</p>
+      <h2 id="doneTitle">Старт засчитан</h2>
+      <p class="lead" id="doneText"></p>
+      <div class="badge" id="badge" hidden></div>
       <div class="actions">
-        <button type="button" class="btn ghost" id="stopHere">На сегодня хватит</button>
-        <button type="button" class="btn" id="another">Ещё 2 минуты</button>
+        <button type="button" class="btn ghost" id="stopHere">Хватит на сегодня</button>
+        <button type="button" class="btn" id="another">Ещё раунд</button>
       </div>
-      <button type="button" class="linkish" data-go="start">С другой задачей</button>
+      <button type="button" class="linkish" id="toStart">Другая причина</button>
     </section>
 
-    <!-- 7. Rest -->
     <section class="panel" data-step="rest" hidden>
-      <p class="mark">Потихоньку</p>
-      <h2>Остановиться — тоже навык</h2>
-      <p class="lead">Ты не обязан(а) «дожимать». Вернёшься, когда будет готовность — уже с планом.</p>
-      <button type="button" class="btn" data-go="start">В начало</button>
+      <h2>Серия сохранена</h2>
+      <p class="lead" id="restText">Остановиться без вины — тоже победа. Завтра огоньку будет проще зажечься.</p>
+      <button type="button" class="btn" id="restHome">В начало</button>
     </section>
   </main>
 
